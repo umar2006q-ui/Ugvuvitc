@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AniDuble — Shartnoma Tizimi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root{
+  --void:#050507;--surface:#0a0a0f;--elevated:#0f0f17;
+  --card:rgba(255,255,255,0.03);--card-h:rgba(255,255,255,0.055);
+  --b0:rgba(255,255,255,0.06);--b1:rgba(255,255,255,0.1);--b2:rgba(255,255,255,0.18);
+  --tp:#f0f0f5;--ts:#9090a8;--tm:#55556a;
+  --violet:#a78bfa;--vd:rgba(167,139,250,0.12);--vg:rgba(167,139,250,0.25);
+  --cyan:#67e8f9;--rose:#f472b6;--green:#4ade80;
+  --glass:rgba(12,12,20,0.75);--gb:rgba(255,255,255,0.08);
+  --fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r1:8px;--r2:14px;--r3:20px;--r4:28px;
+  --sc:0 4px 32px rgba(0,0,0,0.5),0 1px 0 rgba(255,255,255,0.05);
+  --sg:0 0 40px rgba(167,139,250,0.15);
+  --t1:150ms cubic-bezier(.4,0,.2,1);--t2:250ms cubic-bezier(.4,0,.2,1);
+  --t3:400ms cubic-bezier(.4,0,.2,1);--ts2:500ms cubic-bezier(.34,1.56,.64,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--void);color:var(--tp);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--void)}
+::-webkit-scrollbar-thumb{background:rgba(167,139,250,0.3);border-radius:99px}
+
+/* ── CANVAS BG ── */
+#bgc{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── LOADING ── */
+#lo{position:fixed;inset:0;z-index:9999;background:var(--void);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s ease}
+#lo.hide{opacity:0;pointer-events:none}
+.lo-logo{font-family:var(--fd);font-size:22px;font-weight:800;letter-spacing:.1em;background:linear-gradient(135deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lo-bar{width:180px;height:1px;background:var(--b0);border-radius:99px;overflow:hidden}
+.lo-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:99px;animation:lofill 1.8s ease forwards}
+@keyframes lofill{0%{width:0}60%{width:70%}100%{width:100%}}
+.lo-txt{font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.2em;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 36px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,5,7,.75);backdrop-filter:blur(24px);border-bottom:1px solid var(--b0)}
+.nav-logo{display:flex;align-items:center;gap:11px;cursor:pointer;user-select:none}
+.nav-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--violet),rgba(103,232,249,.8));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;box-shadow:0 0 20px var(--vg)}
+.nav-name{font-family:var(--fd);font-size:15px;font-weight:700;letter-spacing:.06em}
+.nav-sub{font-family:var(--fm);font-size:9px;color:var(--tm);letter-spacing:.18em;display:block;margin-top:1px}
+.nav-r{display:flex;align-items:center;gap:14px}
+.nav-live{display:flex;align-items:center;gap:7px;font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.12em}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(74,222,128,.6);animation:pdot 2s infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.85)}}
+.menu-btn{width:36px;height:36px;border:1px solid var(--b0);border-radius:var(--r1);background:var(--card);color:var(--ts);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all var(--t2);position:relative}
+.menu-btn:hover{background:var(--card-h);border-color:var(--b1);color:var(--tp)}
+.drop{position:absolute;top:calc(100% + 10px);right:0;width:210px;background:var(--glass);border:1px solid var(--gb);border-radius:var(--r2);backdrop-filter:blur(40px);box-shadow:var(--sc),var(--sg);padding:8px;opacity:0;transform:translateY(-8px) scale(.97);pointer-events:none;transition:all var(--t2);z-index:200}
+.drop.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
+.drop-hd{padding:8px 12px 7px;font-family:var(--fm);font-size:9px;color:var(--tm);letter-spacing:.2em;text-transform:uppercase;border-bottom:1px solid var(--b0);margin-bottom:5px}
+.drop-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--r1);color:var(--ts);font-size:13px;cursor:pointer;transition:all var(--t1)}
+.drop-item:hover{background:var(--card-h);color:var(--tp)}
+.drop-item i{width:15px;color:var(--violet);font-size:11px}
+
+/* ── MAIN ── */
+main{position:relative;z-index:1;min-height:100vh;padding-top:88px}
+
+/* ── HERO ── */
+.hero{padding:70px 36px 50px;max-width:1060px;margin:0 auto;text-align:center}
+.badge{display:inline-flex;align-items:center;gap:7px;background:var(--vd);border:1px solid rgba(167,139,250,.2);border-radius:99px;padding:5px 15px;font-family:var(--fm);font-size:10px;color:var(--violet);letter-spacing:.14em;text-transform:uppercase;margin-bottom:28px;animation:fsu .7s ease both}
+.hero h1{font-family:var(--fd);font-size:clamp(32px,5.5vw,66px);font-weight:800;line-height:1.06;letter-spacing:-.02em;margin-bottom:18px;animation:fsu .7s .1s ease both}
+.hero h1 .ac{background:linear-gradient(135deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:15px;color:var(--ts);max-width:500px;margin:0 auto 40px;line-height:1.7;font-weight:300;animation:fsu .7s .2s ease both}
+@keyframes fsu{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── GLASS CARD ── */
+.glass-card{background:var(--glass);border:1px solid var(--gb);border-radius:var(--r4);backdrop-filter:blur(40px);box-shadow:var(--sc);overflow:hidden;position:relative}
+.glass-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent)}
+.card-hd{padding:26px 30px 0;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:var(--fd);font-size:17px;font-weight:700}
+.card-sub{font-size:11px;color:var(--tm);margin-top:3px;font-family:var(--fm);letter-spacing:.07em}
+.cbadge{background:var(--vd);border:1px solid rgba(167,139,250,.2);border-radius:99px;padding:3px 11px;font-family:var(--fm);font-size:9px;color:var(--violet);letter-spacing:.14em;text-transform:uppercase}
+.card-body{padding:26px 30px 30px}
+
+/* ── FORM ── */
+.fg{margin-bottom:20px}
+.fl{display:flex;align-items:center;gap:7px;font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.17em;text-transform:uppercase;margin-bottom:9px}
+.fl i{color:var(--violet);font-size:10px}
+.fi{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--b0);border-radius:var(--r2);padding:13px 17px;font-family:var(--fb);font-size:14px;color:var(--tp);transition:all var(--t2);outline:none}
+.fi::placeholder{color:var(--tm)}
+.fi:focus{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.04);box-shadow:0 0 0 3px rgba(167,139,250,.08)}
+.fi[readonly]{cursor:default;font-family:var(--fm);font-size:12px;color:var(--ts);letter-spacing:.05em}
+.fi select,.sel{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--b0);border-radius:var(--r2);padding:13px 17px;font-family:var(--fb);font-size:14px;color:var(--tp);transition:all var(--t2);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none}
+.sel:focus{border-color:rgba(167,139,250,.4);box-shadow:0 0 0 3px rgba(167,139,250,.08)}
+.sel-wrap{position:relative}
+.sel-wrap::after{content:'\f107';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--violet);pointer-events:none;font-size:12px}
+.dt-wrap{position:relative}
+.dt-icon{position:absolute;right:15px;top:50%;transform:translateY(-50%);color:var(--violet);font-size:11px;opacity:.6}
+
+/* ── SIGNATURE ── */
+.sig-wrap{border:1px solid var(--b0);border-radius:var(--r2);overflow:hidden;position:relative;background:rgba(0,0,0,.3);transition:border-color var(--t2)}
+.sig-wrap:hover{border-color:rgba(167,139,250,.3)}
+.sig-wrap.active{border-color:rgba(167,139,250,.5);box-shadow:0 0 0 3px rgba(167,139,250,.08)}
+#sigCanvas{display:block;width:100%;height:150px;cursor:crosshair;touch-action:none}
+.sig-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.1em;text-transform:uppercase;pointer-events:none;transition:opacity var(--t2)}
+.sig-actions{display:flex;justify-content:flex-end;margin-top:9px}
+.btn-clear{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--b0);border-radius:var(--r1);padding:6px 13px;font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.1em;cursor:pointer;transition:all var(--t2)}
+.btn-clear:hover{border-color:rgba(244,114,182,.4);color:var(--rose);background:rgba(244,114,182,.06)}
+
+/* ── BUTTONS ── */
+.btn-group{display:flex;gap:11px;margin-top:26px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:var(--r2);font-family:var(--fb);font-size:14px;font-weight:500;cursor:pointer;transition:all var(--t2);border:1px solid transparent;position:relative;overflow:hidden;white-space:nowrap}
+.btn-pri{background:linear-gradient(135deg,rgba(167,139,250,.9),rgba(103,232,249,.7));color:#fff;box-shadow:0 4px 24px rgba(167,139,250,.25),inset 0 1px 0 rgba(255,255,255,.15);flex:1}
+.btn-pri:hover{box-shadow:0 6px 36px rgba(167,139,250,.4),inset 0 1px 0 rgba(255,255,255,.2);transform:translateY(-1px)}
+.btn-pri:active{transform:translateY(0)}
+.btn-sec{background:var(--card);border-color:var(--b0);color:var(--ts)}
+.btn-sec:hover{background:var(--card-h);border-color:var(--b1);color:var(--tp);box-shadow:0 0 18px rgba(167,139,250,.1)}
+.btn-danger{background:rgba(244,114,182,.08);border-color:rgba(244,114,182,.2);color:var(--rose)}
+.btn-danger:hover{background:rgba(244,114,182,.15);border-color:rgba(244,114,182,.4)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.btn .sp{display:none;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.btn.loading .sp{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── DIVIDER ── */
+.div-row{display:flex;align-items:center;gap:14px;margin:0 0 22px}
+.div-line{flex:1;height:1px;background:var(--b0)}
+.div-txt{font-family:var(--fm);font-size:9px;color:var(--tm);letter-spacing:.2em;text-transform:uppercase}
+.slabel{font-family:var(--fm);font-size:9px;color:var(--violet);letter-spacing:.24em;text-transform:uppercase;margin-bottom:5px}
+
+/* ── MODALS ── */
+.ov{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(5,5,7,.88);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity var(--t3)}
+.ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--elevated);border:1px solid var(--b1);border-radius:var(--r4);box-shadow:0 32px 80px rgba(0,0,0,.6),var(--sg);width:100%;max-width:620px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;transform:translateY(18px) scale(.97);transition:transform var(--t3);position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.5),rgba(103,232,249,.3),transparent)}
+.ov.open .modal{transform:translateY(0) scale(1)}
+.modal-hd{padding:22px 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b0);flex-shrink:0}
+.modal-title{font-family:var(--fd);font-size:17px;font-weight:700}
+.modal-x{width:30px;height:30px;border:1px solid var(--b0);border-radius:var(--r1);background:transparent;color:var(--tm);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all var(--t1)}
+.modal-x:hover{border-color:rgba(244,114,182,.4);color:var(--rose);background:rgba(244,114,182,.08)}
+.modal-body{padding:22px 26px;overflow-y:auto;flex:1}
+.modal-body::-webkit-scrollbar{width:3px}
+.modal-body::-webkit-scrollbar-thumb{background:rgba(167,139,250,.2);border-radius:99px}
+.modal-ft{padding:18px 26px;border-top:1px solid var(--b0);display:flex;gap:9px;flex-shrink:0}
+
+/* contract text */
+.contract-text{font-size:13px;line-height:1.85;color:var(--ts);white-space:pre-wrap}
+.contract-text h3{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--tp);margin:18px 0 7px}
+.contract-text h3:first-child{margin-top:0}
+
+/* ── NOTIFICATIONS ── */
+#notifs{position:fixed;top:82px;right:18px;z-index:1000;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.notif{background:var(--glass);border:1px solid var(--gb);border-radius:var(--r2);padding:13px 17px;display:flex;align-items:center;gap:11px;backdrop-filter:blur(30px);box-shadow:var(--sc);min-width:270px;max-width:340px;pointer-events:all;transform:translateX(110%);transition:transform var(--ts2);position:relative}
+.notif.show{transform:translateX(0)}
+.notif.success{border-color:rgba(74,222,128,.2)}
+.notif.error{border-color:rgba(244,114,182,.2)}
+.notif.info{border-color:rgba(167,139,250,.2)}
+.notif-ico{width:30px;height:30px;border-radius:var(--r1);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.notif.success .notif-ico{background:rgba(74,222,128,.1);color:var(--green)}
+.notif.error .notif-ico{background:rgba(244,114,182,.1);color:var(--rose)}
+.notif.info .notif-ico{background:var(--vd);color:var(--violet)}
+.notif-txt{font-size:13px;color:var(--tp);font-weight:500}
+.notif-sub{font-size:11px;color:var(--tm);margin-top:2px}
+.notif-bar{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:0 0 var(--r2) var(--r2);animation:drain 3.5s linear forwards}
+@keyframes drain{from{width:100%}to{width:0%}}
+
+/* ── USER PANEL ── */
+#userPanel{max-width:660px;margin:0 auto;padding:0 18px 70px;animation:fsu .7s .3s ease both}
+
+/* ── ADMIN PANEL ── */
+#adminPanel{display:none;max-width:1080px;margin:0 auto;padding:0 22px 70px}
+#adminPanel.vis{display:block;animation:fsu .5s ease both}
+.admin-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;padding:0 6px}
+.admin-title{font-family:var(--fd);font-size:26px;font-weight:800;letter-spacing:-.02em}
+.admin-title span{background:linear-gradient(135deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.admin-sub{font-size:12px;color:var(--tm);margin-top:4px;font-family:var(--fm);letter-spacing:.07em}
+.btn-logout{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid rgba(244,114,182,.2);border-radius:var(--r1);padding:8px 15px;font-size:11px;font-family:var(--fm);color:rgba(244,114,182,.7);cursor:pointer;letter-spacing:.07em;transition:all var(--t2)}
+.btn-logout:hover{border-color:rgba(244,114,182,.5);color:var(--rose);background:rgba(244,114,182,.06)}
+
+/* stats */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px}
+.stat-card{background:var(--glass);border:1px solid var(--gb);border-radius:var(--r3);padding:22px;position:relative;overflow:hidden;backdrop-filter:blur(20px);transition:all var(--t2)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.3),transparent)}
+.stat-card:hover{border-color:rgba(167,139,250,.2);box-shadow:var(--sg);transform:translateY(-2px)}
+.stat-ico{width:34px;height:34px;border-radius:var(--r1);background:var(--vd);display:flex;align-items:center;justify-content:center;color:var(--violet);font-size:13px;margin-bottom:14px}
+.stat-val{font-family:var(--fd);font-size:30px;font-weight:800;color:var(--tp);line-height:1;margin-bottom:5px}
+.stat-lbl{font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.14em;text-transform:uppercase}
+.stat-card:hover .stat-val{background:linear-gradient(135deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* admin tabs */
+.admin-tabs{display:flex;gap:8px;margin-bottom:26px}
+.tab-btn{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r2);border:1px solid var(--b0);background:var(--card);color:var(--ts);font-size:13px;font-family:var(--fb);cursor:pointer;transition:all var(--t2)}
+.tab-btn.active{background:var(--vd);border-color:rgba(167,139,250,.3);color:var(--violet)}
+.tab-btn:hover:not(.active){background:var(--card-h);color:var(--tp)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* admin tools */
+.admin-tools{display:flex;gap:11px;margin-bottom:24px;align-items:center}
+.search-wrap{flex:1;position:relative}
+.search-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--tm);font-size:11px}
+.search-in{width:100%;background:var(--glass);border:1px solid var(--gb);border-radius:var(--r2);padding:11px 15px 11px 36px;font-family:var(--fb);font-size:13px;color:var(--tp);transition:all var(--t2);outline:none;backdrop-filter:blur(20px)}
+.search-in::placeholder{color:var(--tm)}
+.search-in:focus{border-color:rgba(167,139,250,.3);box-shadow:0 0 0 3px rgba(167,139,250,.06)}
+
+/* contracts grid */
+.contracts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.cc{background:var(--glass);border:1px solid var(--gb);border-radius:var(--r3);padding:20px;cursor:pointer;transition:all var(--t2);position:relative;overflow:hidden;backdrop-filter:blur(20px)}
+.cc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.2),transparent)}
+.cc:hover{border-color:rgba(167,139,250,.25);box-shadow:var(--sg);transform:translateY(-2px)}
+.cc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.cc-name{font-family:var(--fd);font-size:15px;font-weight:700}
+.cc-id{font-family:var(--fm);font-size:9px;color:var(--tm);margin-top:2px}
+.cc-type{font-family:var(--fm);font-size:9px;color:var(--violet);margin-top:3px;background:var(--vd);display:inline-block;padding:2px 8px;border-radius:99px;border:1px solid rgba(167,139,250,.15)}
+.sbadge{padding:3px 9px;border-radius:99px;font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;flex-shrink:0}
+.s-signed{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.2);color:var(--green)}
+.s-cancelled{background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.2);color:var(--rose)}
+.sig-prev{background:rgba(255,255,255,.02);border:1px solid var(--b0);border-radius:var(--r1);height:65px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px}
+.sig-prev img{max-width:100%;max-height:100%}
+.cc-meta{display:flex;align-items:center;gap:12px}
+.meta-i{display:flex;align-items:center;gap:5px;font-family:var(--fm);font-size:10px;color:var(--tm)}
+.meta-i i{color:var(--violet);font-size:9px}
+
+/* empty state */
+.empty{text-align:center;padding:70px 18px;grid-column:1/-1}
+.empty-ico{width:68px;height:68px;border-radius:var(--r3);background:var(--vd);display:inline-flex;align-items:center;justify-content:center;font-size:26px;color:var(--violet);margin-bottom:18px;border:1px solid rgba(167,139,250,.15)}
+.empty-title{font-family:var(--fd);font-size:19px;font-weight:700;margin-bottom:7px}
+.empty-desc{font-size:13px;color:var(--tm);max-width:270px;margin:0 auto;line-height:1.6}
+
+/* detail modal */
+.detail-sig{background:rgba(0,0,0,.3);border:1px solid var(--b0);border-radius:var(--r2);height:130px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:18px}
+.detail-sig img{max-width:100%;max-height:100%}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:18px}
+.info-item{background:rgba(255,255,255,.02);border:1px solid var(--b0);border-radius:var(--r1);padding:11px 15px}
+.info-lbl{font-family:var(--fm);font-size:9px;color:var(--tm);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.info-val{font-size:13px;color:var(--tp);font-weight:500}
+
+/* new contract modal */
+.type-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.type-card{background:var(--card);border:1px solid var(--b0);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all var(--t2);text-align:center}
+.type-card:hover{border-color:rgba(167,139,250,.3);background:var(--vd)}
+.type-card.sel{border-color:rgba(167,139,250,.5);background:var(--vd);box-shadow:0 0 0 2px rgba(167,139,250,.15)}
+.type-card i{font-size:22px;color:var(--violet);margin-bottom:9px;display:block}
+.type-card-name{font-size:12px;font-weight:600;color:var(--tp)}
+.type-card-desc{font-size:10px;color:var(--tm);margin-top:3px}
+.contract-edit-area{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--b0);border-radius:var(--r2);padding:15px;font-family:var(--fm);font-size:12px;color:var(--ts);resize:vertical;min-height:220px;outline:none;transition:border-color var(--t2);line-height:1.7}
+.contract-edit-area:focus{border-color:rgba(167,139,250,.3);box-shadow:0 0 0 3px rgba(167,139,250,.06)}
+
+/* link box */
+.link-box{background:rgba(0,0,0,.3);border:1px solid rgba(167,139,250,.2);border-radius:var(--r2);padding:14px 16px;display:flex;align-items:center;gap:11px;margin-top:14px}
+.link-url{font-family:var(--fm);font-size:11px;color:var(--violet);flex:1;word-break:break-all;line-height:1.5}
+.btn-copy{display:flex;align-items:center;gap:6px;background:var(--vd);border:1px solid rgba(167,139,250,.2);border-radius:var(--r1);padding:7px 13px;font-size:11px;font-family:var(--fm);color:var(--violet);cursor:pointer;transition:all var(--t2);white-space:nowrap}
+.btn-copy:hover{background:rgba(167,139,250,.2);border-color:rgba(167,139,250,.4)}
+
+/* login */
+.login-ico{width:50px;height:50px;background:linear-gradient(135deg,var(--violet),rgba(103,232,249,.7));border-radius:13px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;color:#fff;margin-bottom:11px;box-shadow:0 0 28px var(--vg)}
+.login-err{background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.2);border-radius:var(--r1);padding:9px 13px;font-size:12px;color:var(--rose);margin-top:11px;display:none;font-family:var(--fm)}
+
+/* contract type badge colors */
+.t-reklama{color:#f59e0b;background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.2)}
+.t-ovoz{color:var(--violet);background:var(--vd);border-color:rgba(167,139,250,.2)}
+.t-marketing{color:var(--cyan);background:rgba(103,232,249,.08);border-color:rgba(103,232,249,.2)}
+.t-animator{color:var(--rose);background:rgba(244,114,182,.08);border-color:rgba(244,114,182,.2)}
+.t-admin{color:var(--green);background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2)}
+
+/* responsive */
+@media(max-width:768px){
+  nav{padding:15px 18px}
+  .hero{padding:55px 18px 36px}
+  #userPanel{padding:0 14px 55px}
+  .stats-grid{grid-template-columns:1fr}
+  .contracts-grid{grid-template-columns:1fr}
+  .info-grid{grid-template-columns:1fr}
+  #adminPanel{padding:0 14px 55px}
+  .admin-hd{flex-direction:column;align-items:flex-start;gap:14px}
+  .btn-group{flex-direction:column}
+  .btn-pri{flex:unset}
+  .modal-hd,.modal-body,.modal-ft{padding-left:18px;padding-right:18px}
+  .nav-live{display:none}
+  .type-cards{grid-template-columns:1fr 1fr}
+  .admin-tabs{flex-wrap:wrap}
+}
+@media(max-width:420px){.hero h1{font-size:28px}}
+
+input:-webkit-autofill{-webkit-box-shadow:0 0 0 50px var(--elevated) inset!important;-webkit-text-fill-color:var(--tp)!important}
+@keyframes shake{0%,100%{transform:translateX(0) scale(1)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="lo">
+  <div class="lo-logo">AniDuble</div>
+  <div class="lo-bar"><div class="lo-fill"></div></div>
+  <div class="lo-txt" id="loTxt">Yuklanmoqda...</div>
+</div>
+
+<!-- BG CANVAS -->
+<canvas id="bgc" aria-hidden="true"></canvas>
+
+<!-- NOTIFICATIONS -->
+<div id="notifs" aria-live="polite"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-mark"><i class="fas fa-microphone-lines"></i></div>
+    <div>
+      <div class="nav-name">AniDuble</div>
+      <span class="nav-sub">Anime Fandub Studio — 2026</span>
+    </div>
+  </div>
+  <div class="nav-r">
+    <div class="nav-live"><div class="live-dot"></div><span>LIVE</span></div>
+    <div style="position:relative">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+      <div class="drop" id="drop">
+        <div class="drop-hd">Kirish</div>
+        <div class="drop-item" id="openLoginBtn"><i class="fas fa-shield-halved"></i>Admin Panel</div>
+        <div class="drop-item" id="backUserBtn" style="display:none"><i class="fas fa-arrow-left"></i>Foydalanuvchi</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+<!-- ══ USER PANEL ══ -->
+<div id="userPanel">
+  <section class="hero">
+    <div class="badge"><i class="fas fa-circle-dot" style="font-size:8px"></i>Shartnoma Tizimi v3.0</div>
+    <h1>Anime Ovozlash<br/><span class="ac">Shartnomasi</span></h1>
+    <p class="hero-desc">AniDuble bilan hamkorlik shartnomasini imzolang. Barcha ma'lumotlar xavfsiz saqlanadi.</p>
+  </section>
+
+  <div class="glass-card">
+    <div class="card-hd">
+      <div>
+        <div class="slabel">Shartnoma</div>
+        <div class="card-title">Ma'lumotlarni kiriting</div>
+        <div class="card-sub">Barcha maydonlar to'ldirilishi shart</div>
+      </div>
+      <div class="cbadge">SECURE</div>
+    </div>
+    <div class="card-body">
+
+      <!-- Shartnoma turi -->
+      <div class="fg">
+        <div class="fl"><i class="fas fa-layer-group"></i>Shartnoma turi</div>
+        <div class="sel-wrap">
+          <select class="sel fi" id="contractType">
+            <option value="">— Turni tanlang —</option>
+            <option value="ovoz">🎙️ Ovozlashtirish</option>
+            <option value="reklama">📢 Reklama</option>
+            <option value="marketing">📊 Marketing</option>
+            <option value="animator">🎨 Animatorlik</option>
+            <option value="admin">⚙️ Adminlik</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Fandub nomi -->
+      <div class="fg">
+        <div class="fl"><i class="fas fa-film"></i>Fandub / Studio nomi</div>
+        <input type="text" id="fandubName" class="fi" placeholder="Misol: Sakura Fandub, AniVoice..." autocomplete="off"/>
+      </div>
+
+      <!-- Sana vaqt -->
+      <div class="fg">
+        <div class="fl"><i class="fas fa-calendar-clock"></i>Sana va vaqt</div>
+        <div class="dt-wrap">
+          <input type="text" id="dtField" class="fi" readonly/>
+          <i class="fas fa-clock dt-icon"></i>
+        </div>
+      </div>
+
+      <!-- Imzo -->
+      <div class="fg">
+        <div class="fl"><i class="fas fa-pen-nib"></i>Imzo</div>
+        <div class="sig-wrap" id="sigWrap">
+          <canvas id="sigCanvas" aria-label="Imzo maydoni"></canvas>
+          <div class="sig-hint" id="sigHint"><i class="fas fa-pen" style="margin-right:6px;color:var(--violet);opacity:.5"></i>Imzo chizing</div>
+        </div>
+        <div class="sig-actions">
+          <button class="btn-clear" id="clearSig"><i class="fas fa-rotate-left"></i>Tozalash</button>
+        </div>
+      </div>
+
+      <div class="div-row"><div class="div-line"></div><div class="div-txt">Harakatlar</div><div class="div-line"></div></div>
+
+      <div class="btn-group">
+        <button class="btn btn-sec" id="viewContractBtn"><i class="fas fa-eye"></i>Shartnomani ko'rish</button>
+        <button class="btn btn-pri" id="submitBtn"><div class="sp"></div><i class="fas fa-paper-plane"></i><span>Tasdiqlash va yuborish</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN PANEL ══ -->
+<div id="adminPanel">
+  <div class="admin-hd">
+    <div>
+      <div class="slabel">Boshqaruv Paneli</div>
+      <h2 class="admin-title">Admin <span>Dashboard</span></h2>
+      <div class="admin-sub">AniDuble — Shartnomalar boshqaruvi</div>
+    </div>
+    <button class="btn-logout" id="logoutBtn"><i class="fas fa-right-from-bracket"></i>Chiqish</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-ico"><i class="fas fa-file-signature"></i></div>
+      <div class="stat-val" id="stTotal">0</div>
+      <div class="stat-lbl">Jami Shartnoma</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ico"><i class="fas fa-calendar-day"></i></div>
+      <div class="stat-val" id="stToday">0</div>
+      <div class="stat-lbl">Bugun Imzolangan</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ico"><i class="fas fa-clock-rotate-left"></i></div>
+      <div class="stat-val" id="stLatest">—</div>
+      <div class="stat-lbl">Oxirgi Imzo</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="tab-btn active" data-tab="contracts"><i class="fas fa-file-signature"></i>Shartnomalar</button>
+    <button class="tab-btn" data-tab="new-contract"><i class="fas fa-plus"></i>Yangi Shartnoma</button>
+    <button class="tab-btn" data-tab="edit-texts"><i class="fas fa-file-pen"></i>Matnlarni tahrirlash</button>
+  </div>
+
+  <!-- Tab: Contracts -->
+  <div class="tab-content active" id="tab-contracts">
+    <div class="admin-tools">
+      <div class="search-wrap">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="search" class="search-in" id="searchIn" placeholder="Qidirish..."/>
+      </div>
+    </div>
+    <div class="contracts-grid" id="contractsGrid"></div>
+  </div>
+
+  <!-- Tab: New Contract -->
+  <div class="tab-content" id="tab-new-contract">
+    <div class="glass-card">
+      <div class="card-hd">
+        <div>
+          <div class="slabel">Yangi</div>
+          <div class="card-title">Shartnoma yaratish</div>
+          <div class="card-sub">Tur tanlang va havola yarating</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="fg">
+          <div class="fl"><i class="fas fa-layer-group"></i>Shartnoma turini tanlang</div>
+          <div class="type-cards" id="typeCards">
+            <div class="type-card" data-type="ovoz">
+              <i class="fas fa-microphone-lines"></i>
+              <div class="type-card-name">Ovozlashtirish</div>
+              <div class="type-card-desc">Anime dublyaj</div>
+            </div>
+            <div class="type-card" data-type="reklama">
+              <i class="fas fa-bullhorn"></i>
+              <div class="type-card-name">Reklama</div>
+              <div class="type-card-desc">Reklama hamkorligi</div>
+            </div>
+            <div class="type-card" data-type="marketing">
+              <i class="fas fa-chart-line"></i>
+              <div class="type-card-name">Marketing</div>
+              <div class="type-card-desc">Targ'ibot xizmati</div>
+            </div>
+            <div class="type-card" data-type="animator">
+              <i class="fas fa-wand-magic-sparkles"></i>
+              <div class="type-card-name">Animatorlik</div>
+              <div class="type-card-desc">Animatsiya xizmati</div>
+            </div>
+            <div class="type-card" data-type="admin">
+              <i class="fas fa-shield-halved"></i>
+              <div class="type-card-name">Adminlik</div>
+              <div class="type-card-desc">Boshqaruv roli</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="linkResult" style="display:none">
+          <div class="div-row"><div class="div-line"></div><div class="div-txt">Yaratilgan havola</div><div class="div-line"></div></div>
+          <div style="background:var(--vd);border:1px solid rgba(167,139,250,.2);border-radius:var(--r2);padding:16px;margin-bottom:14px">
+            <div style="font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px">Hamkorga yuboring:</div>
+            <div class="link-box">
+              <div class="link-url" id="generatedLink">—</div>
+              <button class="btn-copy" id="copyLinkBtn"><i class="fas fa-copy"></i>Nusxa</button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--tm);font-family:var(--fm)">
+            <i class="fas fa-circle-info" style="color:var(--violet);margin-right:6px"></i>
+            Hamkor shu havolani ochganda faqat shu turdagi shartnomani ko'radi va imzolaydi.
+          </div>
+        </div>
+
+        <div class="btn-group" style="margin-top:20px">
+          <button class="btn btn-pri" id="genLinkBtn" disabled><i class="fas fa-link"></i><span>Havola yaratish</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Edit Texts -->
+  <div class="tab-content" id="tab-edit-texts">
+    <div class="glass-card">
+      <div class="card-hd">
+        <div>
+          <div class="slabel">Tahrirlash</div>
+          <div class="card-title">Shartnoma matnlari</div>
+          <div class="card-sub">Har bir tur uchun alohida matn</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="fg">
+          <div class="fl"><i class="fas fa-layer-group"></i>Shartnoma turi</div>
+          <div class="sel-wrap">
+            <select class="sel fi" id="editTypeSelect">
+              <option value="ovoz">🎙️ Ovozlashtirish</option>
+              <option value="reklama">📢 Reklama</option>
+              <option value="marketing">📊 Marketing</option>
+              <option value="animator">🎨 Animatorlik</option>
+              <option value="admin">⚙️ Adminlik</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <div class="fl"><i class="fas fa-file-lines"></i>Shartnoma matni</div>
+          <textarea class="contract-edit-area" id="editTextArea" style="min-height:300px"></textarea>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-pri" id="saveTextBtn"><i class="fas fa-floppy-disk"></i><span>Saqlash</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /adminPanel -->
+</main>
+
+<!-- MODAL: CONTRACT VIEW -->
+<div class="ov" id="contractModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div><div class="slabel">Shartnoma</div><h3 class="modal-title" id="contractModalTitle">Hamkorlik Shartnomasi</h3></div>
+      <button class="modal-x" onclick="closeModal('contractModal')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body"><div class="contract-text" id="contractTextDisplay"></div></div>
+    <div class="modal-ft"><button class="btn btn-sec" style="flex:1" onclick="closeModal('contractModal')"><i class="fas fa-xmark"></i>Yopish</button></div>
+  </div>
+</div>
+
+<!-- MODAL: ADMIN LOGIN -->
+<div class="ov" id="loginModal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-hd">
+      <h3 class="modal-title">Admin Kirish</h3>
+      <button class="modal-x" onclick="closeModal('loginModal')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;padding:6px 0 18px">
+        <div class="login-ico"><i class="fas fa-shield-halved"></i></div>
+        <div style="font-family:var(--fm);font-size:10px;color:var(--tm);letter-spacing:.2em">SECURE ACCESS</div>
+      </div>
+      <div class="fg"><div class="fl"><i class="fas fa-user"></i>Foydalanuvchi</div><input type="text" id="loginUser" class="fi" placeholder="Username" autocomplete="username"/></div>
+      <div class="fg"><div class="fl"><i class="fas fa-lock"></i>Parol</div><input type="password" id="loginPass" class="fi" placeholder="••••••••" autocomplete="current-password"/></div>
+      <div class="login-err" id="loginErr"><i class="fas fa-triangle-exclamation" style="margin-right:6px"></i>Noto'g'ri ma'lumotlar</div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-pri" id="loginBtn" style="flex:1"><div class="sp"></div><i class="fas fa-right-to-bracket"></i><span>Kirish</span></button></div>
+  </div>
+</div>
+
+<!-- MODAL: CONTRACT DETAIL -->
+<div class="ov" id="detailModal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-hd">
+      <div><div class="slabel">Tafsilot</div><h3 class="modal-title" id="detailTitle">—</h3></div>
+      <button class="modal-x" onclick="closeModal('detailModal')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-ft" id="detailFt"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════
+   CREDENTIALS (encoded)
+══════════════════════════════════════════ */
+const _c = (() => {
+  const d = a => a.map(c => String.fromCharCode(c)).join('');
+  return { u: d([97,110,105,100,117,98,108,101]), p: d([115,104,97,100,111,119,50,48,50,54]) };
+})();
+
+/* ══════════════════════════════════════════
+   STORAGE KEYS (localStorage — doimiy saqlanadi)
+══════════════════════════════════════════ */
+const SK = {
+  contracts: 'ad_contracts',
+  texts: 'ad_texts',
+};
+
+/* ══════════════════════════════════════════
+   DEFAULT CONTRACT TEXTS
+══════════════════════════════════════════ */
+const DEFAULT_TEXTS = {
+  ovoz: `AniDuble — OVOZLASHTIRISH SHARTNOMASI
+
+Ushbu shartnoma AniDuble Studio va Hamkor o'rtasida tuzilgan.
+
+1. MAQSAD
+Anime seriallarini o'zbek tiliga ovozlashtirish (dublyaj) bo'yicha hamkorlik.
+
+2. HAMKOR MAJBURIYATLARI
+— Belgilangan muddatlarda ovozlash ishlarini bajarish
+— Studio standartlariga mos audio sifatini ta'minlash
+— Tarjima aniqligiga e'tibor qaratish
+— Ruxsatsiz materiallarni tarqatmaslik
+
+3. STUDIO MAJBURIYATLARI
+— Materiallarni o'z vaqtida taqdim etish
+— Texnik yordam ko'rsatish
+— Hamkorga tegishli kredit berish
+
+4. MUDDATI
+Shartnoma imzodan so'ng 12 oy amal qiladi.
+
+5. MAXFIYLIK
+Barcha ma'lumotlar 2 yil davomida maxfiy saqlanadi.
+
+© 2026 AniDuble. Barcha huquqlar himoyalangan.`,
+
+  reklama: `AniDuble — REKLAMA HAMKORLIGI SHARTNOMASI
+
+Ushbu shartnoma AniDuble Studio va Reklama Hamkori o'rtasida tuzilgan.
+
+1. MAQSAD
+AniDuble platformasida reklama xizmatlarini ko'rsatish.
+
+2. REKLAMA SHARTLARI
+— Reklama materiallari oldindan tasdiqlanishi shart
+— Yoshga mos va qonuniy bo'lishi shart
+— Belgilangan joylarda joylashtiriladi
+
+3. TO'LOV
+Tomonlar kelishilgan narxda to'lov amalga oshiriladi.
+
+4. MUDDATI
+Har bir reklama kampaniyasi uchun alohida muddat belgilanadi.
+
+5. BEKOR QILISH
+7 kun oldin xabar berish orqali bekor qilinishi mumkin.
+
+© 2026 AniDuble. Barcha huquqlar himoyalangan.`,
+
+  marketing: `AniDuble — MARKETING XIZMATLARI SHARTNOMASI
+
+Ushbu shartnoma AniDuble Studio va Marketing Hamkori o'rtasida tuzilgan.
+
+1. MAQSAD
+AniDuble kanallarini targ'ib qilish va auditoriyani kengaytirish.
+
+2. XIZMAT TURLARI
+— Ijtimoiy tarmoqlarda targ'ibot
+— Kontent yaratish va tarqatish
+— Hamjamiyat boshqaruvi
+
+3. HAMKOR MAJBURIYATLARI
+— Oylik hisobot taqdim etish
+— AniDuble brendiga mos kontent yaratish
+— Maqsadli ko'rsatkichlarga erishish
+
+4. MUDDATI
+3 oylik sinov muddati, keyin uzaytirilishi mumkin.
+
+© 2026 AniDuble. Barcha huquqlar himoyalangan.`,
+
+  animator: `AniDuble — ANIMATORLIK XIZMATLARI SHARTNOMASI
+
+Ushbu shartnoma AniDuble Studio va Animator o'rtasida tuzilgan.
+
+1. MAQSAD
+AniDuble loyihalari uchun animatsiya va vizual kontent yaratish.
+
+2. ANIMATOR MAJBURIYATLARI
+— Belgilangan uslubda animatsiya yaratish
+— Muddatlarga qat'iy rioya qilish
+— Kerakli formatda fayllar taqdim etish
+
+3. HUQUQLAR
+Yaratilgan barcha kontent AniDuble mulki hisoblanadi.
+Animatorga tegishli kredit beriladi.
+
+4. TO'LOV
+Har bir loyiha uchun alohida kelishilgan narx.
+
+5. MUDDATI
+Shartnoma loyiha tugaguncha amal qiladi.
+
+© 2026 AniDuble. Barcha huquqlar himoyalangan.`,
+
+  admin: `AniDuble — ADMINLIK SHARTNOMASI
+
+Ushbu shartnoma AniDuble Studio va Admin o'rtasida tuzilgan.
+
+1. MAQSAD
+AniDuble jamoasini boshqarish va tashkiliy ishlarni yuritish.
+
+2. ADMIN VAZIFALARI
+— Jamoa a'zolarini koordinatsiya qilish
+— Loyihalar jadvalini nazorat qilish
+— Kanallar va platformalarni boshqarish
+— Ichki qoidalarga rioya qilish va ta'minlash
+
+3. MAXFIYLIK
+Admin barcha ichki ma'lumotlarni maxfiy saqlaydi.
+Bu majburiyat chiqib ketgandan keyin ham 3 yil davomida amal qiladi.
+
+4. MUDDATI
+Shartnoma imzodan so'ng 6 oy, keyin yangilanadi.
+
+5. BEKOR QILISH
+Qonunbuzarlik bo'lsa shartnoma darhol bekor qilinadi.
+
+© 2026 AniDuble. Barcha huquqlar himoyalangan.`,
+};
+
+const TYPE_NAMES = {
+  ovoz: 'Ovozlashtirish',
+  reklama: 'Reklama',
+  marketing: 'Marketing',
+  animator: 'Animatorlik',
+  admin: 'Adminlik',
+};
+
+const TYPE_ICONS = {
+  ovoz: 'fa-microphone-lines',
+  reklama: 'fa-bullhorn',
+  marketing: 'fa-chart-line',
+  animator: 'fa-wand-magic-sparkles',
+  admin: 'fa-shield-halved',
+};
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let contracts = [];
+let contractTexts = {};
+let isDrawing = false, hasSig = false, lx = 0, ly = 0;
+let adminLoggedIn = false;
+let selectedNewType = null;
+
+/* ══════════════════════════════════════════
+   STORAGE — localStorage (doimiy, F5 da ham saqlanadi)
+══════════════════════════════════════════ */
+function saveAll() {
+  localStorage.setItem(SK.contracts, JSON.stringify(contracts));
+  localStorage.setItem(SK.texts, JSON.stringify(contractTexts));
+}
+
+function loadAll() {
+  try { contracts = JSON.parse(localStorage.getItem(SK.contracts) || '[]'); } catch { contracts = []; }
+  try { contractTexts = JSON.parse(localStorage.getItem(SK.texts) || '{}'); } catch { contractTexts = {}; }
+}
+
+function getContractText(type) {
+  return contractTexts[type] || DEFAULT_TEXTS[type] || '';
+}
+
+/* ══════════════════════════════════════════
+   URL PARAM — shartnoma turi havoladan
+══════════════════════════════════════════ */
+function getUrlType() {
+  const p = new URLSearchParams(window.location.search);
+  return p.get('type') || null;
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function genId() {
+  return 'AD-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,5).toUpperCase();
+}
+function fmtDate(s) {
+  return new Date(s).toLocaleDateString('uz-UZ',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function shortT(s) {
+  return new Date(s).toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'});
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ══════════════════════════════════════════
+   NOTIFICATIONS
+══════════════════════════════════════════ */
+function notify(type, title, sub='') {
+  const icons = { success:'fa-circle-check', error:'fa-circle-xmark', info:'fa-circle-info' };
+  const el = document.createElement('div');
+  el.className = `notif ${type}`;
+  el.innerHTML = `
+    <div class="notif-ico"><i class="fas ${icons[type]||'fa-circle-info'}"></i></div>
+    <div><div class="notif-txt">${title}</div>${sub?`<div class="notif-sub">${sub}</div>`:''}</div>
+    <div class="notif-bar"></div>`;
+  document.getElementById('notifs').appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),500); }, 3500);
+}
+
+/* ══════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════ */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+  const f = document.querySelector(`#${id} input, #${id} button`);
+  if (f) setTimeout(()=>f.focus(),100);
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.ov').forEach(o => o.addEventListener('click', e => { if(e.target===o) closeModal(o.id); }));
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') document.querySelectorAll('.ov.open').forEach(m=>closeModal(m.id));
+});
+
+/* ══════════════════════════════════════════
+   DATE TIME
+══════════════════════════════════════════ */
+function updateDT() {
+  const el = document.getElementById('dtField');
+  if(el) el.value = new Date().toLocaleString('uz-UZ',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+updateDT(); setInterval(updateDT, 1000);
+
+/* ══════════════════════════════════════════
+   BG CANVAS ANIMATION
+══════════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('bgc'), ctx = c.getContext('2d');
+  let W, H, pts, beams;
+  function resize() {
+    W = c.width = innerWidth; H = c.height = innerHeight;
+    pts = Array.from({length:55},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.14,vy:(Math.random()-.5)*.14,a:Math.random()*.35+.05,r:Math.random()*1.1+.2}));
+    beams = Array.from({length:3},(_,i)=>({x:W*(.25+i*.25),len:H*1.5,w:90+Math.random()*100,a:.016+Math.random()*.01,sp:.0003+Math.random()*.0002,ph:Math.random()*Math.PI*2}));
+  }
+  function draw(t) {
+    ctx.clearRect(0,0,W,H);
+    // gradient mesh
+    let g=ctx.createRadialGradient(W*.2,H*.3,0,W*.2,H*.3,W*.5);g.addColorStop(0,'rgba(167,139,250,.04)');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    g=ctx.createRadialGradient(W*.8,H*.7,0,W*.8,H*.7,W*.4);g.addColorStop(0,'rgba(103,232,249,.03)');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // beams
+    beams.forEach(b=>{
+      const sw=Math.sin(t*b.sp+b.ph)*55, cx=b.x+sw;
+      const gr=ctx.createLinearGradient(cx,0,cx,b.len);
+      gr.addColorStop(0,'rgba(167,139,250,0)');gr.addColorStop(.3,`rgba(167,139,250,${b.a})`);gr.addColorStop(.7,`rgba(103,232,249,${b.a*.5})`);gr.addColorStop(1,'rgba(103,232,249,0)');
+      ctx.save();ctx.translate(cx,0);ctx.fillStyle=gr;ctx.fillRect(-b.w/2,0,b.w,b.len);ctx.restore();
+    });
+    // particles
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(167,139,250,${p.a})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize(); addEventListener('resize',resize); requestAnimationFrame(draw);
+})();
+
+/* ══════════════════════════════════════════
+   SIGNATURE PAD
+══════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('sigCanvas');
+  const ctx = canvas.getContext('2d');
+  const hint = document.getElementById('sigHint');
+  const wrap = document.getElementById('sigWrap');
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const data = hasSig ? canvas.toDataURL() : null;
+    canvas.width = rect.width * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    setup();
+    if(data && hasSig) { const img = new Image(); img.onload = ()=>ctx.drawImage(img,0,0,rect.width,rect.height); img.src=data; }
+  }
+
+  function setup() {
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.strokeStyle='#e0d8ff'; ctx.lineWidth=2.5;
+    ctx.shadowBlur=8; ctx.shadowColor='rgba(167,139,250,.5)';
+  }
+
+  function pos(e) {
+    const r=canvas.getBoundingClientRect();
+    return e.touches ? {x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top} : {x:e.clientX-r.left,y:e.clientY-r.top};
+  }
+
+  canvas.addEventListener('mousedown',e=>{e.preventDefault();isDrawing=true;const p=pos(e);lx=p.x;ly=p.y;wrap.classList.add('active');hint.style.opacity='0'});
+  canvas.addEventListener('mousemove',e=>{if(!isDrawing)return;e.preventDefault();const p=pos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;hasSig=true});
+  canvas.addEventListener('mouseup',()=>{isDrawing=false;wrap.classList.remove('active')});
+  canvas.addEventListener('mouseleave',()=>{isDrawing=false;wrap.classList.remove('active')});
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();isDrawing=true;const p=pos(e);lx=p.x;ly=p.y;wrap.classList.add('active');hint.style.opacity='0'},{passive:false});
+  canvas.addEventListener('touchmove',e=>{if(!isDrawing)return;e.preventDefault();const p=pos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;hasSig=true},{passive:false});
+  canvas.addEventListener('touchend',()=>{isDrawing=false;wrap.classList.remove('active')});
+
+  document.getElementById('clearSig').onclick=()=>{
+    const r=canvas.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);hasSig=false;hint.style.opacity='1';
+  };
+
+  resize(); addEventListener('resize', resize);
+})();
+
+/* ══════════════════════════════════════════
+   DROPDOWN MENU
+══════════════════════════════════════════ */
+function closeDrop() { document.getElementById('drop').classList.remove('open'); document.getElementById('menuBtn').setAttribute('aria-expanded','false'); }
+document.getElementById('menuBtn').onclick = e => {
+  e.stopPropagation();
+  const d=document.getElementById('drop'), open=d.classList.contains('open');
+  if(open) closeDrop(); else { d.classList.add('open'); document.getElementById('menuBtn').setAttribute('aria-expanded','true'); }
+};
+document.addEventListener('click', e=>{ if(!e.target.closest('#menuBtn')&&!e.target.closest('#drop')) closeDrop(); });
+document.getElementById('openLoginBtn').onclick=()=>{ closeDrop(); document.getElementById('loginUser').value=''; document.getElementById('loginPass').value=''; document.getElementById('loginErr').style.display='none'; openModal('loginModal'); };
+document.getElementById('backUserBtn').onclick=()=>{ closeDrop(); showUser(); };
+
+/* ══════════════════════════════════════════
+   PANEL SWITCH
+══════════════════════════════════════════ */
+function showAdmin() {
+  document.getElementById('userPanel').style.display='none';
+  document.getElementById('adminPanel').classList.add('vis');
+  document.getElementById('backUserBtn').style.display='flex';
+  document.getElementById('openLoginBtn').style.display='none';
+  refreshAdmin();
+}
+function showUser() {
+  document.getElementById('userPanel').style.display='';
+  document.getElementById('adminPanel').classList.remove('vis');
+  document.getElementById('backUserBtn').style.display='none';
+  document.getElementById('openLoginBtn').style.display='flex';
+}
+
+/* ══════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════ */
+document.getElementById('loginBtn').onclick = handleLogin;
+document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') handleLogin(); });
+
+async function handleLogin() {
+  const u=document.getElementById('loginUser').value;
+  const p=document.getElementById('loginPass').value;
+  const btn=document.getElementById('loginBtn');
+  const err=document.getElementById('loginErr');
+  if(!u||!p) return;
+  btn.classList.add('loading'); btn.disabled=true; err.style.display='none';
+  await delay(700);
+  btn.classList.remove('loading'); btn.disabled=false;
+  if(u===_c.u && p===_c.p) {
+    adminLoggedIn=true;
+    closeModal('loginModal');
+    notify('success','Xush kelibsiz!','Admin panel ochilmoqda...');
+    setTimeout(showAdmin, 500);
+  } else {
+    err.style.display='block';
+    const m=document.querySelector('#loginModal .modal');
+    m.style.animation='shake .4s ease'; setTimeout(()=>m.style.animation='',400);
+  }
+}
+document.getElementById('logoutBtn').onclick=()=>{ adminLoggedIn=false; showUser(); notify('info','Chiqildi','Admin paneldan chiqildi'); };
+
+/* ══════════════════════════════════════════
+   TABS
+══════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='edit-texts') loadEditText();
+  };
+});
+
+/* ══════════════════════════════════════════
+   VIEW CONTRACT MODAL
+══════════════════════════════════════════ */
+document.getElementById('viewContractBtn').onclick = () => {
+  const type = document.getElementById('contractType').value;
+  if(!type) { notify('error','Avval shartnoma turini tanlang',''); return; }
+  document.getElementById('contractModalTitle').textContent = TYPE_NAMES[type] + ' Shartnomasi';
+  document.getElementById('contractTextDisplay').textContent = getContractText(type);
+  openModal('contractModal');
+};
+
+/* ══════════════════════════════════════════
+   SUBMIT CONTRACT
+══════════════════════════════════════════ */
+document.getElementById('submitBtn').onclick = handleSubmit;
+
+async function handleSubmit() {
+  const type = document.getElementById('contractType').value;
+  const name = document.getElementById('fandubName').value.trim();
+  const dt = document.getElementById('dtField').value;
+  const btn = document.getElementById('submitBtn');
+
+  if(!type) { notify('error','Shartnoma turini tanlang',''); return; }
+  if(!name) { notify('error','Fandub nomini kiriting',''); document.getElementById('fandubName').focus(); return; }
+  if(!hasSig) { notify('error','Imzo chizilmagan',''); return; }
+
+  btn.classList.add('loading'); btn.disabled=true;
+  await delay(1200);
+
+  const sigData = document.getElementById('sigCanvas').toDataURL('image/png');
+  const c = { id:genId(), type, typeName:TYPE_NAMES[type], fandubName:name, dateTime:dt, signatureData:sigData, contractText:getContractText(type), submittedAt:new Date().toISOString(), status:'signed' };
+
+  contracts.push(c);
+  saveAll(); // ← darhol localStorage ga saqlaydi
+
+  btn.classList.remove('loading'); btn.disabled=false;
+  notify('success','Shartnoma yuborildi!', name + ' — muvaffaqiyatli');
+
+  // Reset form
+  document.getElementById('fandubName').value='';
+  document.getElementById('contractType').value='';
+  const cv=document.getElementById('sigCanvas'), cx=cv.getContext('2d');
+  const r=cv.getBoundingClientRect(); cx.clearRect(0,0,r.width,r.height);
+  hasSig=false; document.getElementById('sigHint').style.opacity='1';
+  burst();
+}
+
+/* ══════════════════════════════════════════
+   ADMIN PANEL
+══════════════════════════════════════════ */
+function refreshAdmin() {
+  updateStats();
+  renderContracts();
+}
+
+function updateStats() {
+  const total = contracts.length;
+  const today = contracts.filter(c=>{ const d=new Date(c.submittedAt); return d.toDateString()===new Date().toDateString(); }).length;
+  const latest = contracts.length ? shortT(contracts[contracts.length-1].submittedAt) : '—';
+  document.getElementById('stTotal').textContent=total;
+  document.getElementById('stToday').textContent=today;
+  document.getElementById('stLatest').textContent=latest;
+}
+
+function typeClass(t) {
+  const m={ovoz:'t-ovoz',reklama:'t-reklama',marketing:'t-marketing',animator:'t-animator',admin:'t-admin'};
+  return m[t]||'t-ovoz';
+}
+
+function renderContracts(filter='') {
+  const grid=document.getElementById('contractsGrid');
+  const list=contracts.filter(c=>c.fandubName.toLowerCase().includes(filter.toLowerCase()));
+  if(!list.length) {
+    grid.innerHTML=`<div class="empty"><div class="empty-ico"><i class="fas fa-folder-open"></i></div><div class="empty-title">${filter?'Topilmadi':"Shartnomalar yo'q"}</div><div class="empty-desc">${filter?`"${esc(filter)}" bo'yicha hech narsa topilmadi`:"Hali hech kim shartnoma imzolamagan."}</div></div>`;
+    return;
+  }
+  grid.innerHTML=list.map(c=>`
+    <div class="cc" tabindex="0" role="button" onclick="openDetail('${c.id}')" onkeydown="if(event.key==='Enter')openDetail('${c.id}')">
+      <div class="cc-top">
+        <div>
+          <div class="cc-name">${esc(c.fandubName)}</div>
+          <div class="cc-id">${c.id}</div>
+          <div class="cc-type ${typeClass(c.type)}">${esc(c.typeName||c.type)}</div>
+        </div>
+        <div class="sbadge ${c.status==='cancelled'?'s-cancelled':'s-signed'}">${c.status==='cancelled'?'Bekor':'Imzolangan'}</div>
+      </div>
+      <div class="sig-prev"><img src="${c.signatureData}" alt="imzo"/></div>
+      <div class="cc-meta">
+        <div class="meta-i"><i class="fas fa-calendar"></i>${fmtDate(c.submittedAt).split(',')[0]}</div>
+        <div class="meta-i"><i class="fas fa-clock"></i>${shortT(c.submittedAt)}</div>
+      </div>
+    </div>`).join('');
+}
+
+document.getElementById('searchIn').oninput=e=>renderContracts(e.target.value);
+
+function openDetail(id) {
+  const c=contracts.find(x=>x.id===id); if(!c) return;
+  document.getElementById('detailTitle').textContent=c.fandubName;
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-sig"><img src="${c.signatureData}" alt="imzo"/></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-lbl">Fandub nomi</div><div class="info-val">${esc(c.fandubName)}</div></div>
+      <div class="info-item"><div class="info-lbl">Shartnoma turi</div><div class="info-val"><span class="cc-type ${typeClass(c.type)}" style="display:inline-block">${esc(c.typeName||c.type)}</span></div></div>
+      <div class="info-item"><div class="info-lbl">Holati</div><div class="info-val" style="color:${c.status==='cancelled'?'var(--rose)':'var(--green)'};">${c.status==='cancelled'?'✗ Bekor qilingan':'✓ Imzolangan'}</div></div>
+      <div class="info-item"><div class="info-lbl">Shartnoma ID</div><div class="info-val" style="font-family:var(--fm);font-size:11px">${c.id}</div></div>
+      <div class="info-item" style="grid-column:1/-1"><div class="info-lbl">Yuborilgan vaqt</div><div class="info-val" style="font-size:12px">${fmtDate(c.submittedAt)}</div></div>
+      <div class="info-item" style="grid-column:1/-1"><div class="info-lbl">Imzo sanasi</div><div class="info-val" style="font-size:12px">${c.dateTime}</div></div>
+    </div>`;
+
+  const ft=document.getElementById('detailFt');
+  if(c.status!=='cancelled') {
+    ft.innerHTML=`
+      <button class="btn btn-danger" style="flex:1" onclick="cancelContract('${c.id}')"><i class="fas fa-ban"></i>Bekor qilish</button>
+      <button class="btn btn-sec" style="flex:1" onclick="closeModal('detailModal')"><i class="fas fa-xmark"></i>Yopish</button>`;
+  } else {
+    ft.innerHTML=`<button class="btn btn-sec" style="flex:1" onclick="closeModal('detailModal')"><i class="fas fa-xmark"></i>Yopish</button>`;
+  }
+  openModal('detailModal');
+}
+
+function cancelContract(id) {
+  const c=contracts.find(x=>x.id===id); if(!c) return;
+  c.status='cancelled';
+  saveAll(); // ← darhol saqlaydi
+  closeModal('detailModal');
+  refreshAdmin();
+  notify('info','Shartnoma bekor qilindi',c.fandubName);
+}
+
+/* ══════════════════════════════════════════
+   NEW CONTRACT — LINK GENERATOR
+══════════════════════════════════════════ */
+document.querySelectorAll('.type-card').forEach(card=>{
+  card.onclick=()=>{
+    document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+    card.classList.add('sel');
+    selectedNewType=card.dataset.type;
+    document.getElementById('genLinkBtn').disabled=false;
+  };
+});
+
+document.getElementById('genLinkBtn').onclick=()=>{
+  if(!selectedNewType) return;
+  const base=window.location.href.split('?')[0];
+  const link=`${base}?type=${selectedNewType}`;
+  document.getElementById('generatedLink').textContent=link;
+  document.getElementById('linkResult').style.display='block';
+  notify('success','Havola yaratildi!',TYPE_NAMES[selectedNewType]+' shartnomasi uchun');
+};
+
+document.getElementById('copyLinkBtn').onclick=()=>{
+  const link=document.getElementById('generatedLink').textContent;
+  navigator.clipboard.writeText(link).then(()=>notify('success','Nusxa olindi!','Havolani hamkorga yuboring')).catch(()=>{
+    const ta=document.createElement('textarea'); ta.value=link; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    notify('success','Nusxa olindi!','');
+  });
+};
+
+/* ══════════════════════════════════════════
+   EDIT CONTRACT TEXTS
+══════════════════════════════════════════ */
+function loadEditText() {
+  const type=document.getElementById('editTypeSelect').value;
+  document.getElementById('editTextArea').value=getContractText(type);
+}
+
+document.getElementById('editTypeSelect').onchange=loadEditText;
+
+document.getElementById('saveTextBtn').onclick=async()=>{
+  const btn=document.getElementById('saveTextBtn');
+  const type=document.getElementById('editTypeSelect').value;
+  const text=document.getElementById('editTextArea').value.trim();
+  if(!text) return;
+  btn.classList.add('loading'); btn.disabled=true;
+  await delay(500);
+  contractTexts[type]=text;
+  saveAll(); // ← darhol saqlaydi
+  btn.classList.remove('loading'); btn.disabled=false;
+  notify('success','Saqlandi!',TYPE_NAMES[type]+' shartnoma matni yangilandi');
+};
+
+/* ══════════════════════════════════════════
+   URL TYPE — Hamkor havoladan kelganda
+══════════════════════════════════════════ */
+function checkUrlType() {
+  const type=getUrlType();
+  if(type && DEFAULT_TEXTS[type]) {
+    const sel=document.getElementById('contractType');
+    sel.value=type;
+    // Badge ko'rsatish
+    const hero=document.querySelector('.hero');
+    const badge=document.createElement('div');
+    badge.style.cssText='margin:0 auto 20px;display:inline-block';
+    badge.innerHTML=`<div style="background:var(--vd);border:1px solid rgba(167,139,250,.3);border-radius:var(--r2);padding:12px 20px;text-align:center"><div style="font-family:var(--fm);font-size:9px;color:var(--tm);letter-spacing:.18em;text-transform:uppercase;margin-bottom:5px">Shartnoma turi</div><div style="font-family:var(--fd);font-size:16px;font-weight:700;color:var(--violet)"><i class="fas ${TYPE_ICONS[type]}" style="margin-right:8px"></i>${TYPE_NAMES[type]}</div></div>`;
+    hero.appendChild(badge);
+    notify('info',TYPE_NAMES[type]+' shartnomasi','Quyida ma\'lumotlarni to\'ldiring');
+  }
+}
+
+/* ══════════════════════════════════════════
+   PARTICLE BURST
+══════════════════════════════════════════ */
+function burst() {
+  const colors=['#a78bfa','#67e8f9','#f472b6','#4ade80','#fbbf24'];
+  const c=document.createElement('canvas');
+  c.style.cssText='position:fixed;inset:0;z-index:9998;pointer-events:none;width:100%;height:100%';
+  document.body.appendChild(c);
+  const ctx=c.getContext('2d');
+  c.width=innerWidth; c.height=innerHeight;
+  const cx=c.width/2, cy=c.height/2;
+  const pts=Array.from({length:38},()=>({x:cx,y:cy,vx:(Math.random()-.5)*11,vy:(Math.random()-.5)*11-3,r:Math.random()*4+1.5,color:colors[Math.floor(Math.random()*colors.length)],a:1,g:.22}));
+  let f=0;
+  function draw(){ ctx.clearRect(0,0,c.width,c.height); pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.a-=.022;if(p.a<=0)return;ctx.globalAlpha=p.a;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}); ctx.globalAlpha=1; if(++f<75)requestAnimationFrame(draw); else c.remove(); }
+  requestAnimationFrame(draw);
+}
+
+/* ══════════════════════════════════════════
+   INIT — ma'lumotlarni yuklash
+══════════════════════════════════════════ */
+async function init() {
+  document.getElementById('loTxt').textContent = 'Ma\'lumotlar yuklanmoqda...';
+
+  // LocalStorage dan yuklanadi — F5 da ham saqlanib qoladi
+  loadAll();
+
+  await delay(1400);
+  document.getElementById('lo').classList.add('hide');
+
+  // URL type tekshirish
+  checkUrlType();
+}
+
+init();
+</script>
+</body>
+</html>
